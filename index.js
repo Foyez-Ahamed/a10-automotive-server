@@ -31,7 +31,16 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
-  
+    // brands name and image collection //
+
+    const brandsCollections = client.db('brandsDB').collection('brands');
+
+    // crud operation for brands // 
+    app.post('/brands', async(req, res) => {
+      const addBrands = req.body;
+      const result = await brandsCollections.insertOne(addBrands);
+      res.send(result);
+    })
 
 
 
