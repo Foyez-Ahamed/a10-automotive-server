@@ -35,6 +35,8 @@ async function run() {
 
     const brandsCollections = client.db('brandsDB').collection('brands');
 
+    const brandsCategoryCollection = client.db('brandsCategoriesDB').collection('brandsCategory');
+
     // crud operation for brands // 
 
     app.get('/brands', async(req, res) => {
@@ -46,6 +48,13 @@ async function run() {
     app.post('/brands', async(req, res) => {
       const addBrands = req.body;
       const result = await brandsCollections.insertOne(addBrands);
+      res.send(result);
+    })
+
+
+    app.post('/brandsCategory', async(req, res) => {
+      const addProduct = req.body;
+      const result = await brandsCategoryCollection.insertOne(addProduct);
       res.send(result);
     })
 
