@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId, } = require('mongodb');
 require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 5000;
@@ -37,8 +37,8 @@ async function run() {
 
     const brandsCategoryCollection = client.db('brandsCategoriesDB').collection('brandsCategory');
 
+    
     // crud operation for brands // 
-
     app.get('/brands', async(req, res) => {
       const cursor = brandsCollections.find();
       const result = await cursor.toArray();
@@ -52,6 +52,7 @@ async function run() {
     })
 
 
+    // for add product // 
     app.post('/brandsCategory', async(req, res) => {
       const addProduct = req.body;
       const result = await brandsCategoryCollection.insertOne(addProduct);
@@ -59,10 +60,13 @@ async function run() {
     })
 
 
+    app.get('/brandsCategory/:brandName', async(req, res) => {
+      const brandName = req.params.brandName;
+      const cursor = brandsCategoryCollection.find({brandName: brandName});
+      const result = await cursor.toArray();
+      res.send(result);
 
-
-
-
+    })
 
 
     // Send a ping to confirm a successful connection
