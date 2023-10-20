@@ -13,10 +13,6 @@ app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.wslenxe.mongodb.net/?retryWrites=true&w=majority`;
 
-console.log(uri);
-
-
-
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
@@ -37,6 +33,8 @@ async function run() {
 
     const brandsCategoryCollection = client.db('brandsCategoriesDB').collection('brandsCategory');
 
+    const addToCartCollection = client.db('addToCartDB').collection('addToCart');
+
 
     // crud operation for brands // 
     app.get('/brands', async(req, res) => {
@@ -50,6 +48,7 @@ async function run() {
       const result = await brandsCollections.insertOne(addBrands);
       res.send(result);
     })
+
 
 
     // for add product // 
@@ -74,6 +73,50 @@ async function run() {
       const result = await brandsCategoryCollection.findOne(query);
       res.send(result);
     })
+
+
+    // update product // 
+    app.put('/product/:id', async(req, res) => {
+      const updateProduct = req.body;
+      const id = req.params.id
+      const filter = {_id : new ObjectId(id)}
+      const options = { upsert: true };
+
+      const newProduct = {
+        $set: {
+          image : updateProduct.image,
+          name : updateProduct.name,
+          rating : updateProduct.rating,
+          brandName : updateProduct.brandName,
+          type : updateProduct.type,
+          price : updateProduct.price
+        }
+      }
+      const result = await brandsCategoryCollection.updateOne(filter, newProduct, options)
+      res.send(result);
+
+    })
+
+
+    // for addTo cart // 
+    app.post('/addToCart', async(req, res) => {
+      const addToCart = req.body;
+      const result = await addToCartCollection.insertOne(addToCart);
+      res.send(result);
+    })
+
+    app.get('/addToCart', async(req, res) => {
+      const cursor = addToCartCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    })
+
+    // app.delete('/addToCart/:id', async(req, res) => {
+    //   const id = req.params.id;
+    //   const query = {_id : new ObjectId(id)}
+    //   const result = await addToCartCollection.deleteOne(query);
+    //   res.send(result);
+    // })
 
 
     // Send a ping to confirm a successful connection
