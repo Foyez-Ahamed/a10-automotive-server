@@ -1,12 +1,12 @@
 const express = require('express');
-const cors = require('cors');
-const { MongoClient, ServerApiVersion, ObjectId, } = require('mongodb');
-require('dotenv').config();
 const app = express();
-const port = process.env.PORT || 5000;
+const cors = require('cors');
+require('dotenv').config()
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const port= process.env.PORT || 5000
 
 
-// middleware //
+
 app.use(cors());
 app.use(express.json());
 
@@ -25,18 +25,18 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
+
     await client.connect();
 
-    // brands name and image collection //
-
+    
     const brandsCollections = client.db('brandsDB').collection('brands');
 
-    const brandsCategoryCollection = client.db('brandsCategoriesDB').collection('brandsCategory');
+    const brandsCategoryCollection = client.db('brandsDB').collection('brandsCategory');
 
-    const addToCartCollection = client.db('addToCartDB').collection('addToCart');
+    const addToCartCollection = client.db('brandsDB').collection('addToCart');
 
 
-    // crud operation for brands // 
+    
     app.get('/brands', async(req, res) => {
       const cursor = brandsCollections.find();
       const result = await cursor.toArray();
@@ -50,15 +50,17 @@ async function run() {
     })
 
 
-
-    // for add product // 
+    // lagbe // 
     app.post('/brandsCategory', async(req, res) => {
       const addProduct = req.body;
       const result = await brandsCategoryCollection.insertOne(addProduct);
       res.send(result);
     })
 
+    // lagbe//
 
+
+    // lagbe //
     app.get('/brandsCategory/:brandName', async(req, res) => {
       const brandName = req.params.brandName;
       const cursor = brandsCategoryCollection.find({brandName: brandName});
@@ -66,6 +68,7 @@ async function run() {
       res.send(result);
 
     })
+    // lagbe //
 
     app.get('/product/:id', async(req, res) => {
       const id = req.params.id;
@@ -75,7 +78,7 @@ async function run() {
     })
 
 
-    // update product // 
+    
     app.put('/product/:id', async(req, res) => {
       const updateProduct = req.body;
       const id = req.params.id
@@ -98,12 +101,25 @@ async function run() {
     })
 
 
-    // for addTo cart // 
+    
     app.post('/addToCart', async(req, res) => {
+
       const addToCart = req.body;
+      
+      const existingAdd = await addToCartCollection.findOne({ userEmail : addToCart.userEmail, 'products._id': addToCart.products._id, })
+
+      if(existingAdd) {
+        return res.send({
+        message: "You have already added to cart",
+        insertedId: null,
+      });
+
+      }
+
       const result = await addToCartCollection.insertOne(addToCart);
       res.send(result);
     })
+
 
     app.get('/addToCart', async(req, res) => {
       const cursor = addToCartCollection.find();
@@ -111,15 +127,16 @@ async function run() {
       res.send(result);
     })
 
-    // app.delete('/addToCart/:id', async(req, res) => {
-    //   const id = req.params.id;
-    //   const query = {_id : new ObjectId(id)}
-    //   const result = await addToCartCollection.deleteOne(query);
-    //   res.send(result);
-    // })
+    app.delete('/addToCart/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = {_id : new ObjectId(id)}
+      const result = await addToCartCollection.deleteOne(query);
+      res.send(result);
+    })
 
 
     // Send a ping to confirm a successful connection
+
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
