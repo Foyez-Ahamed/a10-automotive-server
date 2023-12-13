@@ -50,17 +50,21 @@ async function run() {
     })
 
 
-    // lagbe // 
+   
     app.post('/brandsCategory', async(req, res) => {
       const addProduct = req.body;
       const result = await brandsCategoryCollection.insertOne(addProduct);
       res.send(result);
     })
 
-    // lagbe//
+    app.get('/brandsCategory', async(req, res) => {
+      const cursor = brandsCategoryCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    })
 
+   
 
-    // lagbe //
     app.get('/brandsCategory/:brandName', async(req, res) => {
       const brandName = req.params.brandName;
       const cursor = brandsCategoryCollection.find({brandName: brandName});
@@ -68,7 +72,7 @@ async function run() {
       res.send(result);
 
     })
-    // lagbe //
+    
 
     app.get('/product/:id', async(req, res) => {
       const id = req.params.id;
@@ -105,7 +109,7 @@ async function run() {
     app.post('/addToCart', async(req, res) => {
 
       const addToCart = req.body;
-      
+
       const existingAdd = await addToCartCollection.findOne({ userEmail : addToCart.userEmail, 'products._id': addToCart.products._id, })
 
       if(existingAdd) {
@@ -121,10 +125,16 @@ async function run() {
     })
 
 
-    app.get('/addToCart', async(req, res) => {
-      const cursor = addToCartCollection.find();
-      const result = await cursor.toArray();
+    app.get('/addToCart/:email', async(req, res) => {
+      
+      const email = req.params.email
+
+      const query = { userEmail : email }
+
+      const result = await addToCartCollection.find(query).toArray();
+
       res.send(result);
+
     })
 
     app.delete('/addToCart/:id', async(req, res) => {
